@@ -1,0 +1,1188 @@
+---
+title: "Yellow Grain GRIN data clean up"
+output: html_document
+---
+*key to grin data*
+Endosperm color (ENDOSPRMCO):
+1=white
+2=yellow
+3=mixed
+
+Pericarp color (PERICARPCO):
+1=white
+2=red
+3=lemon yellow
+4=mixed
+
+Kernel color (KERCOLOR):
+1=white
+2 red
+3 yellow
+4 brown
+5 buff
+6 mixed
+7 purple
+
+Testa (TESTA)
+1=yes
+2=no
+3=segregating
+
+Endosperm Texture (ENDOSPRMTX)
+1=completely corneous
+2=almost corneous
+3=partly corneous
+4=almost starchy
+5=completely starchy
+
+
+```{r setup, include=FALSE}
+setwd("~/Downloads")
+grin<- read.delim("GRIN_database.txt")
+grin$origin<-as.factor(grin$origin)
+
+summary(grin$origin)
+grin$origin <- sub(pattern = "COLLECTED PRE 10/27/2006 India by", replacement = "India",grin$origin)
+grin$origin <- sub(pattern = "COLLECTED   KwaZulu-Natal, South Africa by", replacement = "South Africa",grin$origin)
+grin$origin <- sub(pattern = "COLLECTED PRE 10/27/2006 Kenya by", replacement = "Kenya",grin$origin)
+grin$origin <- sub(pattern = "COLLECTED PRE 10/27/2006 Uganda by", replacement = "Uganda",grin$origin)
+grin$origin <- sub(pattern = "COLLECTED   Uttar Pradesh, India by", replacement = "India",grin$origin)
+grin$origin <- sub(pattern = "COLLECTED   Andhra Pradesh, India by", replacement = "India",grin$origin)
+grin$origin <- sub(pattern = "COLLECTED PRE 10/27/2006 Tanzania by", replacement = "Tanzania",grin$origin)
+grin$origin <- sub(pattern = "CCOLLECTED  11/23/1986 Madhya Pradesh, India by", replacement = "India",grin$origin)
+
+grin$origin <- sub(pattern = "COLLECTED PRE 10/25/1948 Turkey by", replacement = "Turkey",grin$origin)
+grin$origin <- sub(pattern = "COLLECTED   Austr. Capital Terr., Australia by", replacement = "Austrailia",grin$origin)
+grin$origin <- sub(pattern = "COLLECTED PRE 10/27/2006 Sudan by", replacement = "Sudan",grin$origin)
+grin$origin <- sub(pattern = "COLLECTED   Nei Monggol, China by", replacement = "China",grin$origin)
+grin$origin <- sub(pattern = "COLLECTED   Ciudad Real, Spain by", replacement = "Spain",grin$origin)
+
+
+grin$origin <- sub(pattern = "COLLECTED   Madhya Pradesh, India by", replacement = "India",grin$origin)
+grin$origin <- sub(pattern = "COLLECTED PRE 10/27/2006 Nigeria by", replacement = "Nigeria",grin$origin)
+
+grin$origin <- sub(pattern = "COLLECTED  11/24/1986 Madhya Pradesh, India by", replacement = "India",grin$origin)
+grin$origin <- sub(pattern = "COLLECTED   Tamil Nadu, India by", replacement = "India",grin$origin)
+grin$origin <- sub(pattern = "COLLECTED PRE 10/27/2006 China by", replacement = "China",grin$origin)
+grin$origin <- sub(pattern = "COLLECTED PRE 03/23/1949 Turkey by", replacement = "Turkey",grin$origin)
+grin$origin <- sub(pattern = "COLLECTED   Basse-Terre, Guadeloupe by", replacement = "Guadeloupe",grin$origin)
+grin$origin <- sub(pattern = "COLLECTED   Federal District, Mexico by", replacement = "Mexico",grin$origin)
+```
+
+
+```{r cleaning the data}
+test1<-grin[,c("taxa","ENDOSPRMCO","KERCOLOR","PERICARPCO","ENDOSPRMTX", "TESTA", "origin")]
+
+#changing endosperm color scores
+test1$ENDOSPRMCO <- sub(pattern = "1,1", replacement = "1",test1$ENDOSPRMCO)
+test1$ENDOSPRMCO <- sub(pattern = "1,1,1", replacement = "1",test1$ENDOSPRMCO)
+test1$ENDOSPRMCO <- sub(pattern = "2,2", replacement = "2",test1$ENDOSPRMCO)
+test1$ENDOSPRMCO <- sub(pattern = "1,2", replacement = "3",test1$ENDOSPRMCO) 
+test1$ENDOSPRMCO <- sub(pattern = "1,1", replacement = "1",test1$ENDOSPRMCO)
+
+table(test1$ENDOSPRMCO)
+
+#changing kernel color scores, anything with more than 1 color = mixed "6"
+test1$KERCOLOR <- sub(pattern = "1,1", replacement = "1",test1$KERCOLOR)
+test1$KERCOLOR <- sub(pattern = "1,1,1", replacement = "1",test1$KERCOLOR)
+test1$KERCOLOR <- sub(pattern = "1,2", replacement = "6",test1$KERCOLOR) 
+test1$KERCOLOR <- sub(pattern = "1,3", replacement = "6",test1$KERCOLOR) 
+test1$KERCOLOR <- sub(pattern = "1,4", replacement = "6",test1$KERCOLOR) 
+test1$KERCOLOR <- sub(pattern = "1,5", replacement = "6",test1$KERCOLOR) 
+test1$KERCOLOR <- sub(pattern = "1,6", replacement = "6",test1$KERCOLOR) 
+test1$KERCOLOR <- sub(pattern = "2,2", replacement = "2",test1$KERCOLOR)
+test1$KERCOLOR <- sub(pattern = "2,3", replacement = "6",test1$KERCOLOR)
+test1$KERCOLOR <- sub(pattern = "2,4", replacement = "6",test1$KERCOLOR)
+test1$KERCOLOR <- sub(pattern = "2,5", replacement = "6",test1$KERCOLOR)
+test1$KERCOLOR <- sub(pattern = "2,6", replacement = "6",test1$KERCOLOR)
+test1$KERCOLOR <- sub(pattern = "3,3", replacement = "3",test1$KERCOLOR)
+test1$KERCOLOR <- sub(pattern = "3,4", replacement = "6",test1$KERCOLOR)
+test1$KERCOLOR <- sub(pattern = "3,4,4", replacement = "6",test1$KERCOLOR)
+test1$KERCOLOR <- sub(pattern = "3,5", replacement = "6",test1$KERCOLOR)
+test1$KERCOLOR <- sub(pattern = "3,6", replacement = "6",test1$KERCOLOR)
+test1$KERCOLOR <- sub(pattern = "4,4", replacement = "4",test1$KERCOLOR)
+test1$KERCOLOR <- sub(pattern = "4,4,4", replacement = "4",test1$KERCOLOR)
+test1$KERCOLOR <- sub(pattern = "4,4,5", replacement = "6",test1$KERCOLOR)
+test1$KERCOLOR <- sub(pattern = "4,5", replacement = "6",test1$KERCOLOR)
+test1$KERCOLOR <- sub(pattern = "4,5,5", replacement = "6",test1$KERCOLOR)
+test1$KERCOLOR <- sub(pattern = "4,6", replacement = "6",test1$KERCOLOR)
+test1$KERCOLOR <- sub(pattern = "5,5", replacement = "5",test1$KERCOLOR)
+test1$KERCOLOR <- sub(pattern = "5,6", replacement = "6",test1$KERCOLOR)
+test1$KERCOLOR <- sub(pattern = "6,6", replacement = "6",test1$KERCOLOR)
+test1$KERCOLOR <- sub(pattern = "6,4", replacement = "6",test1$KERCOLOR)
+test1$KERCOLOR <- sub(pattern = "6,5", replacement = "6",test1$KERCOLOR)
+test1$KERCOLOR <- sub(pattern = "6,7", replacement = "6",test1$KERCOLOR)
+test1$KERCOLOR <- sub(pattern = "1,1", replacement = "1",test1$KERCOLOR)
+test1$KERCOLOR <- sub(pattern = "3,3", replacement = "3",test1$KERCOLOR)
+test1$KERCOLOR <- sub(pattern = "4,4", replacement = "4",test1$KERCOLOR)
+
+table(test1$KERCOLOR)
+
+
+
+
+test1$PERICARPCO <- sub(pattern = "1,1", replacement = "1",test1$PERICARPCO)
+test1$PERICARPCO <- sub(pattern = "1,1,1", replacement = "1",test1$PERICARPCO)
+test1$PERICARPCO <- sub(pattern = "1,1,2", replacement = "4",test1$PERICARPCO)
+test1$PERICARPCO <- sub(pattern = "1,2", replacement = "4",test1$PERICARPCO)
+test1$PERICARPCO <- sub(pattern = "1,2,2", replacement = "4",test1$PERICARPCO)
+test1$PERICARPCO <- sub(pattern = "1,2,4", replacement = "4",test1$PERICARPCO)
+test1$PERICARPCO <- sub(pattern = "1,3", replacement = "4",test1$PERICARPCO)
+test1$PERICARPCO <- sub(pattern = "1,4", replacement = "4",test1$PERICARPCO)
+test1$PERICARPCO <- sub(pattern = "1,4,4", replacement = "4",test1$PERICARPCO)
+test1$PERICARPCO <- sub(pattern = "2,2", replacement = "2",test1$PERICARPCO)
+test1$PERICARPCO <- sub(pattern = "2,2,2", replacement = "2",test1$PERICARPCO)
+test1$PERICARPCO <- sub(pattern = "2,2,4", replacement = "4",test1$PERICARPCO)
+test1$PERICARPCO <- sub(pattern = "2,3", replacement = "4",test1$PERICARPCO)
+test1$PERICARPCO <- sub(pattern = "2,4", replacement = "4",test1$PERICARPCO)
+test1$PERICARPCO <- sub(pattern = "2,4,4", replacement = "4",test1$PERICARPCO)
+test1$PERICARPCO <- sub(pattern = "3,4", replacement = "4",test1$PERICARPCO)
+test1$PERICARPCO <- sub(pattern = "4,2", replacement = "4",test1$PERICARPCO)
+test1$PERICARPCO <- sub(pattern = "4,4", replacement = "4",test1$PERICARPCO)
+test1$PERICARPCO <- sub(pattern = "1,1", replacement = "1",test1$PERICARPCO)
+test1$PERICARPCO <- sub(pattern = "2,2", replacement = "2",test1$PERICARPCO)
+
+table(test1$PERICARPCO)
+
+
+
+```
+
+```{r clean}
+
+clean<-test1
+
+levels(clean$ENDOSPRMCO)= c("white", "yellow", "mixed")
+
+levels(clean$PERICARPCO)= c("white","red","lemon yellow", "mixed")
+
+levels(clean$KERCOLOR)= c("white","red","yellow","brown", "buff","mixed","purple")
+
+levels(clean$TESTA)= c("yes", "no", "segregating")
+
+```
+
+
+*H: Yellow grain color predicts a yellow endosperm*
+P: Yellow grain accessions will be predominantly yellow endo
+
+```{r chi sq}
+chisq.test(clean$ENDOSPRMCO,clean$KERCOLOR)
+
+```
+
+
+Now, Lets subset the data by Yellow and White endosperm and kernel color
+
+```{r yellow and white}
+
+rm(test2)
+test2 <- subset(clean,         
+ENDOSPRMCO == "2"|
+ENDOSPRMCO == "1")
+
+
+dim(test2)
+##[1] 14248     7
+
+
+test2 <- subset(test2,
+                KERCOLOR=="3"|
+                    KERCOLOR=="1")
+
+dim(test2)
+##[1] 5883    7
+
+
+table(test2$KERCOLOR)
+# White Yellow 
+#  4653   1230 
+
+
+table(test2$ENDOSPRMCO)
+# White Yellow 
+#  5616    267
+
+test2$ENDOSPRMCO <- sub(pattern = "2", replacement = "yellow",test2$ENDOSPRMCO)
+test2$ENDOSPRMCO <- sub(pattern = "1", replacement = "white",test2$ENDOSPRMCO)
+test2$KERCOLOR <- sub(pattern = "3", replacement = "yellow",test2$KERCOLOR)
+test2$KERCOLOR <- sub(pattern = "1", replacement = "white",test2$KERCOLOR)
+
+
+library(ggplot2)
+
+#figure 1a with percents, replace KERCOLOR with PERICARPCO for 1b
+ggplot(test2, aes(x= ENDOSPRMCO,  group=KERCOLOR)) + 
+    geom_bar(aes(y = ..prop..), stat="count") +
+    geom_text(aes( label = ..count..,
+                   y= ..prop.. ), stat= "count", vjust = -.2) +
+    labs(y = "Percent") +
+    facet_grid(~KERCOLOR) +
+    scale_y_continuous(labels = scales::percent)+
+    scale_fill_manual(values = c("black", "yellow", "black", "yellow")) +
+    theme(
+        panel.background=element_blank(),
+        panel.grid.major=element_blank(),
+        panel.grid.minor=element_blank(),
+        panel.border=element_rect(colour = "black",fill=NA),
+        legend.key = element_rect(colour="white"),
+        text = element_text(size=15)
+    )+
+    labs(title="Kernel Color and Endosperm Color")+xlab("endosperm_color")+ylab("percent")
+
+
+library(ggplot2)
+
+test2$ENDOSPERMCO<- as.factor(test2$ENDOSPRMCO)
+test2$KERCOLOR<- as.factor(test2$KERCOLOR)
+
+#figure 1a with counts, replace KERCOLOR with PERICARPCO for 1b
+ggplot(test2, aes(x = ENDOSPRMCO, fill = ENDOSPRMCO)) +
+  geom_bar(aes(y = ..count..), stat = "count", position = "dodge", colour = "black") +
+  geom_text(aes(label = stat(count), y = ..count..), stat = "count", position = position_dodge(width = 0.9), vjust = -0.3) +
+  labs(y = "Frequency", x= "Endosperm Color") +
+  facet_grid(~KERCOLOR) +
+  scale_y_continuous() +
+  scale_fill_manual(values = c("white", "orange")) +
+  theme(
+    panel.background = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_rect(colour = "black", fill = NA),
+    legend.key = element_rect(colour = "white"),
+    text = element_text(size = 15)
+  ) + ylim(c(0, 5000)) +
+  labs(title = "Kernel Color and Endosperm Color", xlab = "Endosperm Color", ylab = "frequency") + labs(fill= "Endosperm Color")
+
+
+
+
+```
+
+```{r yellow unique}
+rm(test2)
+test2 <- subset(test,         
+ENDOSPRMCO == "2"|
+ENDOSPRMCO == "1")
+
+dim(test2)
+##[1] 14248     7
+
+test2 <- subset(test2,
+                KERCOLOR=="3"|
+                    KERCOLOR=="1")
+
+dim(test2)
+##[1] 5883    7
+
+
+table(test2$KERCOLOR)
+# White Yellow 
+#  4653   1230 
+
+
+table(test2$ENDOSPRMCO)
+# White Yellow 
+#  5616    267
+
+test3 <- subset(test,         
+ENDOSPRMCO == "2"|
+ENDOSPRMCO == "1")
+
+
+
+test3 <- subset(test3,
+                PERICARPCO=="3"|
+                    PERICARPCO=="1")
+
+# Get unique sample names from each data frame
+sample_names_df1 <- unique(test2$taxa)
+sample_names_df2 <- unique(test3$taxa)
+
+# Find common sample names
+common_sample_names <- intersect(sample_names_df1, sample_names_df2)
+
+#5407 in common between yellow/ white kernels and yellow/white pericarp color
+
+
+```
+
+```
+*H: There are patterns of geographical distribution of yellow endosperm*
+P: There will be countries with significantly higher numbers of carotenoid-containing sorghums than other countries
+
+
+```{r barplot of yellow geographic origin}
+
+library(dplyr)
+
+rm(test,test1,test2)
+
+library(ggplot2)
+
+#counts of origin
+
+#remove countries with few accession in panel
+test<-subset(grin,ENDOSPRMCO=="2")
+
+dim(test)
+#[1] 378 101
+
+test<-subset(test,!origin=="")
+test1<-test[test$origin %in% names(which(table(test$origin) > 2)), ]
+
+dim(test1)
+#[1] 327   101
+
+#These origins need to be renamed
+test1$origin <- sub(pattern = "Texas, United States", replacement = "United States",test1$origin)
+test1$origin <- sub(pattern = "Liaoning Sheng, China", replacement = "China",test1$origin)
+
+
+
+library(ggplot2)
+
+#barplot of yellow endosperm geographic origin
+yelloworigin<-(ggplot(
+  data = test1,
+  aes(x = origin)
+) +
+  geom_bar(stat = "count", width = 0.9, fill = "orange", colour = "black") +
+  geom_text(stat = 'count', aes(label = ..count..), vjust = -1) +
+  theme(
+    panel.background = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_rect(colour = "black", fill = NA),
+    legend.key = element_rect(colour = "white"),
+    text = element_text(size = 15),
+    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)
+  ) +
+  ylim(c(0, 280)) +
+  labs(
+    title = "Yellow Endosperm Panel-Origin",
+    x = "Country",  # Change x-axis label
+    y = "Frequency"  # Change y-axis label
+  ))
+
+```
+
+
+```{r Fib2c: barplot of yellow pericarp geographic origin}
+
+rm(test,test1,test2) 
+#remove old variables
+
+
+test<-subset(grin,PERICARPCO=="3")
+dim(test)
+# 1070  101
+
+
+#remove rows with no country listed
+test1<-subset(test,!origin=="")
+dim(test1)
+#[1] 842  101
+
+
+#percents
+test1 %>% 
+    count(origin) %>% 
+    mutate(perc = (n / nrow(test1))*100) -> test2
+
+test2$perc<-round(test2$perc)
+
+dim(test2)
+# 33  3
+
+
+#remove countries with few accession in panel
+test2<-subset(test2,!perc<"2")
+
+dim(test2)
+#[1] 7 3
+
+
+ggplot(
+    data=test2, 
+    aes(x=origin,y=perc)) + 
+    geom_bar(stat="identity",width=.5)+
+    geom_text(stat='identity', aes(label=perc), vjust=-1)+
+theme(
+    panel.background=element_blank(),
+    panel.grid.major=element_blank(),
+    panel.grid.minor=element_blank(),
+    panel.border=element_rect(colour = "black",fill=NA),
+    legend.key = element_rect(colour="white"),
+    text = element_text(size=15)) +
+theme(axis.text.x =element_text(angle=45,vjust=1,hjust=1))+ ylim(c(0, 75)) +labs(title="Yellow Pericarp Panel-Origin")+xlab("country")+ylab("percent %")
+
+#counts, not percents
+#remove countries with few accession in panel
+test1<-test[test$origin %in% names(which(table(test$origin) > 9)), ]
+test1<-subset(test1,!origin=="")
+
+#yellow pericarp origin frequency
+ggplot(
+    data=test1, 
+    aes(x=origin)) + 
+    geom_bar(stat="count",width=.9) +
+    geom_text(stat='count', aes(label=..count..), vjust=-1) +
+theme(
+    panel.background=element_blank(),
+    panel.grid.major=element_blank(),
+    panel.grid.minor=element_blank(),
+    panel.border=element_rect(colour = "black",fill=NA),
+    legend.key = element_rect(colour="white"),
+    text = element_text(size=15)) +
+theme(axis.text.x =element_text(angle=45,vjust=.51,hjust=1)) + ylim(c(0, 600))+labs(title="Yellow Pericarp Panel-Origin")+xlab("Country")+ylab("Frequency")
+
+
+library(ggplot2)
+
+#Yellow Pericarp Panel-Origin
+periori<-ggplot(
+  data = test1,
+  aes(x = origin)
+) +
+  geom_bar(stat = "count", width = 0.9, fill = "orange", colour = "black") +
+  geom_text(stat = 'count', aes(label = ..count..), vjust = -1) +
+  theme(
+    panel.background = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_rect(colour = "black", fill = NA),
+    legend.key = element_rect(colour = "white"),
+    text = element_text(size = 15),
+    axis.text.x = element_text(angle = 45, vjust = 0.51, hjust = 1)
+  ) +
+  ylim(c(0, 600)) +
+  labs(
+    title = "Yellow Pericarp Panel-Origin",
+    x = "Country",
+    y = "Frequency"
+  )
+
+
+```
+
+*H: There are patterns of morphological type associated with yellow sorghum*
+P: there will be races w sig higher numbers of yellow sorghums than other countries
+
+```{r figure 3 morphological}
+
+rm(test,test1,test2,test3,test4) 
+#remove old variables
+
+grin$race= as.factor(grin$race)
+
+levels(grin$race)
+
+#mixed morphologies not included
+test2 <- subset(grin,         
+race == "Durra"|
+race == "Caudatum"|
+race == "Guinea"|
+race == "Kafir"|
+race == "Bicolor")
+
+dim(test2)
+#12633 101
+
+table(test2$race)
+#Bicolor Caudatum    Durra   Guinea    Kafir 
+#    856     4286     3804     3014      673 
+
+```
+
+
+```{r Fig3a: barplot of yellow endo morpho}
+
+
+test3<-subset(test2,ENDOSPRMCO =="2")
+
+dim(test3)
+# 221 101
+
+#percents
+test3 %>% 
+    count(race) %>% 
+    mutate(perc = (n / nrow(test3))*100) -> test4
+
+test4$perc<-round(test4$perc)
+
+dim(test4)
+#[1] 5  3
+
+
+#remove countries with few accession in panel
+test4<-subset(test4,!perc=="0")
+
+dim(test4)
+#[1] 5  3
+
+
+ggplot(
+    data=test4, 
+    aes(x=race,y=perc)) + 
+    geom_bar(stat="identity",width=.5)+
+    geom_text(stat='identity', aes(label=n), vjust=-1)+
+theme(
+    panel.background=element_blank(),
+    panel.grid.major=element_blank(),
+    panel.grid.minor=element_blank(),
+    panel.border=element_rect(colour = "black",fill=NA),
+    legend.key = element_rect(colour="white"),
+    text = element_text(size=15))+
+theme(axis.text.x =element_text(angle=45,vjust=1,hjust=1))+ ylim(c(0, 85)) +labs(title="Yellow Endo Panel-Botanical Type")+xlab("Botanical Type")+ylab("Percent %")
+
+#counts, not percents
+
+library(ggplot2)
+
+yellowtype<-(ggplot(
+  data = test3,
+  aes(x = race)
+) +
+  geom_bar(stat = "count", width = 0.9, fill = "orange", colour = "black") +
+  geom_text(stat = 'count', aes(label = ..count..), vjust = -1) +
+  theme(
+    panel.background = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_rect(colour = "black", fill = NA),
+    legend.key = element_rect(colour = "white"),
+    text = element_text(size = 15),
+    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)
+  ) +
+  ylim(c(0, 179)) +
+  labs(
+    title = "Yellow Endosperm Botanical Types",
+    x = "Morphological Type",
+    y = "Frequency"
+  ))
+
+
+```
+
+
+```{r combined figure 2}
+library(ggplot2)
+library(cowplot)
+
+rm(test, test1,test2,test3,test4,test5)
+#YELLOW ENDOSPERM ORIGIN
+test<-subset(grin,ENDOSPRMCO=="2")
+
+dim(test)
+#[1] 378 101
+
+test<-subset(test,!origin=="")
+test1<-test[test$origin %in% names(which(table(test$origin) > 2)), ]
+
+dim(test1)
+#[1] 342   101
+
+test1$origin <- sub(pattern = "Texas, United States", replacement = "United States",test1$origin)
+test1$origin <- sub(pattern = "Liaoning Sheng, China", replacement = "China",test1$origin)
+
+
+
+
+yelloworigin<-(ggplot(
+  data = test1,
+  aes(x = origin)
+) +
+  geom_bar(stat = "count", width = 0.9, fill = "orange", colour = "black") +
+  geom_text(stat = 'count', aes(label = ..count..), vjust = -0.5) +
+  theme(
+    panel.background = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_rect(colour = "black", fill = NA),
+    legend.key = element_rect(colour = "white"),
+    text = element_text(size = 15),
+    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)
+  ) +
+  ylim(c(0, 300)) +
+  labs(
+    x = "Country",  # Change x-axis label
+    y = "Frequency"  # Change y-axis label
+  ))
+
+
+
+##YELLOW ENDOSPERM RACE
+test2 <- subset(grin,         
+race == "Durra"|
+race == "Caudatum"|
+race == "Guinea"|
+race == "Kafir"|
+race == "Bicolor")
+test3<-subset(test2,ENDOSPRMCO =="2")
+
+
+
+yellowtype<-(ggplot(
+  data = test3,
+  aes(x = race)
+) +
+  geom_bar(stat = "count", width = 0.9, fill = "orange", colour = "black") +
+  geom_text(stat = 'count', aes(label = ..count..), vjust = -0.5) +
+  theme(
+    panel.background = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_rect(colour = "black", fill = NA),
+    legend.key = element_rect(colour = "white"),
+    text = element_text(size = 15),
+    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)
+  ) +
+  ylim(c(0, 179)) +
+  labs(
+    x = "Morphological Type",
+    y = "Frequency"
+  ))
+
+##YELLOW PERICARP ORIGIN
+test5<-subset(grin,PERICARPCO=="3")
+
+test5<-subset(test5,!origin=="")
+test5<-test5[test5$origin %in% names(which(table(test5$origin) > 5)), ]
+
+periori<-ggplot(
+  data = test5,
+  aes(x = origin)
+) +
+  geom_bar(stat = "count", width = 0.9, fill = "orange", colour = "black") +
+  geom_text(stat = 'count', aes(label = ..count..), vjust = -0.5) +
+  theme(
+    panel.background = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_rect(colour = "black", fill = NA),
+    legend.key = element_rect(colour = "white"),
+    text = element_text(size = 15),
+    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)
+  ) +
+  ylim(c(0, 700)) +
+  labs(
+    x = "Country",
+    y = "Frequency"
+  )
+
+#YELLOW PERICARP RACE
+
+
+test4 <- subset(grin,         
+race == "Durra"|
+race == "Caudatum"|
+race == "Guinea"|
+race == "Kafir"|
+race == "Bicolor")
+
+test6<-subset(test4,PERICARPCO=="3")
+
+peritype<-ggplot(
+    data=test6, 
+    aes(x=race)
+    ) + 
+    geom_bar(stat="count",width=.9, fill= "orange", colour="black") +
+    geom_text(stat='count', aes(label=..count..), vjust=-0.5) +
+theme(
+    panel.background=element_blank(),
+    panel.grid.major=element_blank(),
+    panel.grid.minor=element_blank(),
+    panel.border=element_rect(colour = "black",fill=NA),
+    legend.key = element_rect(colour="white"),
+    text = element_text(size=15))+
+theme(axis.text.x =element_text(angle=45,vjust=1,hjust=1)) + ylim(c(0, 520))+xlab("Morphological Type")+ylab("Frequency") 
+  
+summary(test6$race)
+# Combine the two plots into a single plot
+facet_wrapped_plots <- plot_grid(yelloworigin, periori, yellowtype, peritype, ncol = 2)
+print(facet_wrapped_plots)
+
+
+
+```
+
+
+```{r barplot of yellow kernel race}
+
+
+test3<-subset(grin,KERCOLOR=="3")
+
+test3 <- subset(test3,         
+race == "Durra"|
+race == "Caudatum"|
+race == "Guinea"|
+race == "Kafir"|
+race == "Bicolor")
+
+dim(test3)
+# 1313  101
+
+
+#percents
+test3 %>% 
+    count(race) %>% 
+    mutate(perc = (n / nrow(test3))*100) -> test4
+
+test4$perc<-round(test4$perc)
+
+dim(test4)
+#[1] 5  3
+
+#remove countries with few accession in panel
+test4<-subset(test4,!perc=="0")
+
+dim(test4)
+#[1] 5  3
+
+
+ggplot(
+    data=test4, 
+    aes(x=race,y=perc)) + 
+    geom_bar(stat="identity",width=.5)+
+    geom_text(stat='identity', aes(label=perc), vjust=-1)+
+theme(
+    panel.background=element_blank(),
+    panel.grid.major=element_blank(),
+    panel.grid.minor=element_blank(),
+    panel.border=element_rect(colour = "black",fill=NA),
+    legend.key = element_rect(colour="white"),
+    text = element_text(size=15))+
+theme(axis.text.x =element_text(angle=45,vjust=1,hjust=1))+ ylim(c(0, 40)) +labs(title="Yellow Kernel Panel-Botanical Type")+xlab("botanical type")+ylab("percent")
+
+#counts, not percents
+
+peritype<-ggplot(
+    data=test3, 
+    aes(x=race)) + 
+    geom_bar(stat="count",width=.9, fill= "orange", colour="black") +
+    geom_text(stat='count', aes(label=..count..), vjust=-1) +
+theme(
+    panel.background=element_blank(),
+    panel.grid.major=element_blank(),
+    panel.grid.minor=element_blank(),
+    panel.border=element_rect(colour = "black",fill=NA),
+    legend.key = element_rect(colour="white"),
+    text = element_text(size=15))+
+theme(axis.text.x =element_text(angle=45,vjust=1,hjust=1)) + ylim(c(0, 500))+labs(title="Yellow Kernel Panel-Botanical Type")+xlab("botanical type")+ylab("frequency")
+
+```
+
+
+```{r Fig3c: barplot of yellow pericarp race}
+
+rm(test,test1,test2,test3,test4) 
+#remove old variables
+test<-subset(grin,PERICARPCO=="3")
+
+dim(test)
+#[1] 1070  101
+
+
+
+test1<-subset(test,!race=="Unknown")
+test1<-subset(test1,!race=="Mixed")
+test1<-subset(test1,!race=="")
+test1<-subset(test1,!race=="Breeding line")
+
+dim(test1)
+#[1] 1038  101
+
+#percents
+test1 %>% 
+    count(race) %>% 
+    mutate(perc = (n / nrow(test1))*100) -> test2
+
+test2$perc<-round(test2$perc)
+
+dim(test2)
+#[1] 16  3
+
+
+sum(test2$n)
+#[1] 1038
+
+#remove countries with few accession in panel
+test2<-subset(test2,!perc=="0")
+
+dim(test2)
+#[1] 14  3
+
+sum(test2$n)
+#[1] 1032
+
+ggplot(
+    data=test2, 
+    aes(x=race,y=perc)) + 
+    geom_bar(stat="identity",width=.5)+
+    geom_text(stat='identity', aes(label=perc), vjust=-1)+
+theme(
+    panel.background=element_blank(),
+    panel.grid.major=element_blank(),
+    panel.grid.minor=element_blank(),
+    panel.border=element_rect(colour = "black",fill=NA),
+    legend.key = element_rect(colour="white"),
+    text = element_text(size=15))+
+theme(axis.text.x =element_text(angle=45,vjust=1,hjust=1))+ ylim(c(0, 50)) +labs(title="Yellow Pericarp Panel-Botanical Type")+xlab("botanical type")+ylab("percent")
+
+#counts, not percents
+ggplot(
+    data=test1, 
+    aes(x=race)) + 
+    geom_bar(stat="count",width=.9) +
+    geom_text(stat='count', aes(label=..count..), vjust=-1) +
+theme(
+    panel.background=element_blank(),
+    panel.grid.major=element_blank(),
+    panel.grid.minor=element_blank(),
+    panel.border=element_rect(colour = "black",fill=NA),
+    legend.key = element_rect(colour="white"),
+    text = element_text(size=15))+
+theme(axis.text.x =element_text(angle=45,vjust=1,hjust=1))+ ylim(c(0, 500))+labs(title="Yellow Pericarp Panel-Botanical Type")+xlab("botanical type")+ylab("frequency")
+
+
+```
+
+
+**Grain-Relationship to Other Traits**
+*H: grain carotenoid producing sorghums do not produce condensed tannins in the grain* 
+P: Yellow endo sorghum will have no pigmented testa, but white endo sorghum will have no significant difference between accessions with and without a pigmented testa
+Explanation: could be based on end-user preference for yellow sorghum without tannins, and white or brown sorghum with tannins
+
+```{r testa and endosperm color}
+
+rm(test,test1,test2,test3,test4) 
+#remove old variables
+
+test<-clean
+
+test1 <- subset(test,         
+                TESTA == "2"|
+                    TESTA == "1")
+
+dim(test1)
+# 13107     7
+
+
+test1 <- subset(test1,
+                ENDOSPRMCO=="2"|
+                    ENDOSPRMCO=="1")
+
+dim(test1)
+# 12764 7     
+
+test1$TESTA <- sub(pattern = "1", replacement = "present",test1$TESTA)
+test1$TESTA <- sub(pattern = "2", replacement = "absent",test1$TESTA)
+
+
+table(test1$ENDOSPRMCO)
+ #white endosperm yellow endosperm 
+  #         12394              370
+
+
+table(test1$TESTA)
+ #absent present 
+  # 7003    5761 
+
+table(test1$ENDOSPRMCO,test1$TESTA)
+#                    absent present
+#  white endosperm    6652    5742
+#  yellow endosperm    351      19
+
+#which yellow endos have testas?
+test2 <-subset(test1, ENDOSPRMCO=="2")
+test2 <-subset(test2, TESTA=="present")
+
+test2$taxa
+# [1] "PI452522" "PI457148" "PI457208" "PI569891" "PI457898" "PI457137" "PI514178" "PI456932"
+# [9] "PI457270" "PI457298" "PI457200" "PI457218" "PI457197" "PI457202" "PI457908" "PI457140"
+# [17] "PI457254" "PI457157" "PI457857"
+
+#PIs may be in a different order, these are the 19 lines we ordered for validation
+
+test1$ENDOSPRMCO <- sub(pattern = "2", replacement = "yellow",test1$ENDOSPRMCO)
+test1$ENDOSPRMCO <- sub(pattern = "1", replacement = "white",test1$ENDOSPRMCO)
+
+#barplot of testa presence and endosperm color
+ggplot(test1, aes(x= TESTA,  group=ENDOSPRMCO)) + 
+    geom_bar(aes(y = ..prop..), stat="count") +
+    geom_text(aes( label = scales::percent(..prop..),
+                   y= ..prop.. ), stat= "count", vjust = -.5) +
+    labs(y = "Percent", fill="testa") +
+    facet_grid(~ENDOSPRMCO) +
+    scale_y_continuous(labels = scales::percent)+
+theme(
+    panel.background=element_blank(),
+    panel.grid.major=element_blank(),
+    panel.grid.minor=element_blank(),
+    panel.border=element_rect(colour = "black",fill=NA),
+    legend.key = element_rect(colour="white"),
+    text = element_text(size=15))+
+labs(title="Endosperm Color and Testa")+xlab("Testa")+ylab("Percent %")
+
+library(ggplot2)
+
+ggplot(test1, aes(x = TESTA, group = ENDOSPRMCO, fill = ENDOSPRMCO)) +
+  geom_bar(aes(y = ..count..), stat = "count", position = "dodge", color = "black") +
+  geom_text(aes(label = ..count.., y = ..count..), stat = "count", position = position_dodge(width = 0.9), vjust = -0.19) +
+  scale_fill_manual(values = c("white", "orange"), name = "Endosperm Color") +  # Set fill colors manually and change legend title
+  labs(y = "Frequency") +
+  facet_grid(~ENDOSPRMCO) +
+  coord_cartesian(ylim = c(0, 7000)) +
+  theme(
+    panel.background = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_rect(colour = "black", fill = NA),
+    legend.key = element_rect(colour = "white"),
+    text = element_text(size = 15)
+  ) +
+  labs(title = "Endosperm Color and Testa", xlab = "Testa", ylab = "Frequency")
+
+
+
+```
+
+```{r Figure 5}
+library(ggplot2)
+library(dplyr)
+
+# merge carotenoid data and GRIN data
+labcaroo <- merge(labcaro, clean, by = "taxa")
+
+# these origins need to be renamed
+labcaroo$origin <- sub(pattern = "COLLECTED  06/27/1975 Andhra Pradesh, India by", replacement = "India",labcaroo$origin)
+
+labcaroo$origin <- sub(pattern = "COLLECTED  09/27/1919 Cape Province, South Africa by", replacement = "South Africa",labcaroo$origin)
+
+labcaroo$origin <- sub(pattern = "COLLECTED   New South Wales, Australia by", replacement = "Austrailia",labcaroo$origin)
+
+
+labcaroyellow_means <- labcaroo %>%
+  group_by(origin) %>%
+  summarize(mean_BCarotene = mean(BCarotene, na.rm = TRUE))
+
+
+ggplot(data = labcaroyellow_means, aes(x = origin)) +
+  geom_bar(aes(y = mean_BCarotene), stat = "identity", width = 0.9, fill = "orange", colour = "black") +
+  geom_text(aes(label = round(mean_BCarotene, 2), y = mean_BCarotene), vjust = -1) +
+  theme(
+    panel.background = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_rect(colour = "black", fill = NA),
+    legend.key = element_rect(colour = "white"),
+    text = element_text(size = 15),
+    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)
+  ) +
+  ylim(c(0, 200)) +
+  labs(
+    title = "Carotenoid Content by Country",
+    x = "Country",
+    y = "Mean BCarotene"
+  )
+
+
+```
+
+
+H: Quantitative…
+P1: 
+
+```{r}
+
+test<-grin[,c(1,49,56,68,75)]
+carotenoid_quant_final_mean<- read.csv("carotenoid_quant_final_mean.csv")
+test1<-merge(carotenoid_quant_final_mean,test,by="taxa")
+
+test1$ENDOSPRMCO <- sub(pattern = "1,1,1", replacement = "1",test1$ENDOSPRMCO)
+test1$KERCOLOR <- sub(pattern = "4,4,4", replacement = "4",test1$KERCOLOR)
+
+table(test1$ENDOSPRMCO)
+#      1   2 
+#359   5  41 
+
+table(test1$KERCOLOR)
+
+#          1     3     4   6 
+#  318     9    76     1     1 
+
+table(test1$PERICARPCO)
+
+#      1   2   3   4 
+#359   7   1  37   1 
+
+table(test1$Color)
+
+#        brown    red  white yellow 
+#     1     89     27    156     49 
+
+test1
+
+#sumLZBB = sum of lutein, zeaxanthin, beta caro 
+t.test((subset(test1,ENDOSPRMCO=="2"))$SumLZBB,(subset(test1,ENDOSPRMCO=="1"))$SumLZBB)
+
+#	Welch Two Sample t-test
+
+#data:  (subset(test1, ENDOSPRMCO == "2"))$SumLZBB and (subset(test1, ENDOSPRMCO == "1"))$SumLZBB
+#t = 8.7947, df = 42.922, p-value = 3.719e-11
+#alternative hypothesis: true difference in means is not equal to 0
+#95 percent confidence interval:
+# 4104.254 6546.725
+#sample estimates:
+#mean of x mean of y 
+#  6654.65   1329.16 
+
+t.test((subset(test1,KERCOLOR=="3"))$SumLZBB,(subset(test1,KERCOLOR=="1"))$SumLZBB)
+
+#Welch Two Sample t-test
+#data:  (subset(test1, KERCOLOR == "3"))$SumLZBB and (subset(test1, KERCOLOR == "1"))$SumLZBB
+#t = 4.8839, df = 55.875, p-value = 9.1e-06
+#alternative hypothesis: true difference in means is not equal to 0
+#95 percent confidence interval:
+# 1476.257 3529.650
+#sample estimates:
+#mean of x mean of y 
+# 4343.080  1840.127 
+
+
+t.test((subset(test1,PERICARPCO=="3"))$SumLZBB,(subset(test1,PERICARPCO=="1"))$SumLZBB)
+
+#Welch Two Sample t-test
+#data:  (subset(test1, PERICARPCO == "3"))$SumLZBB and (subset(test1, PERICARPCO == "1"))$SumLZBB
+#t = 6.4059, df = 31.136, p-value = 3.811e-07
+#alternative hypothesis: true difference in means is not equal to 0
+#95 percent confidence interval:
+# 3180.457 6150.846
+#sample estimates:
+#mean of x mean of y 
+# 7042.843  2377.191 
+
+t.test((subset(test1,Color=="yellow"))$SumLZBB,(subset(test1,Color=="white"))$SumLZBB)
+
+#Welch Two Sample t-test
+#data:  (subset(test1, Color == "yellow"))$SumLZBB and (subset(test1, Color == "white"))$SumLZBB
+#t = 8.938, df = 49.486, p-value = 6.688e-12
+#alternative hypothesis: true difference in means is not equal to 0
+#95 percent confidence interval:
+#3647.728 5763.085
+#sample estimates:
+#mean of x mean of y 
+# 6124.690  1419.284  
+
+
+
+```
+
+```{r Color Beta Caro graph}
+setwd("~/Downloads")
+test<-clean
+carotenoid_quant_final_mean<- read.csv("carotenoid_quant_final_mean.csv")
+test1<-inner_join(carotenoid_quant_final_mean,test,by="taxa")
+
+
+library(ggplot2)
+
+test2 <- subset(test1,         
+Color == "white"|
+Color == "red"|
+Color == "brown"|
+Color == "yellow")
+
+
+ggplot(data=test2,aes(Color,SumLZBB)) +  geom_col() + 
+theme(axis.text.x =element_text(angle=45,vjust=1,hjust=1))+ ylim(c(0, 2000)) +labs(title="Kernel Color and Total Carotenoid Content")+ xlab("Kernel Color")+ylab("Total Carotenoid Content")
+```
+
+
+
+```{r PCA}
+test<-labcaroyellow[,c(3:9,18)]
+test$total<- test$Lutein + test$Zeaxanthin + test$BCryptoxanthin + test$BCarotene
+test$Kolor<-as.factor(test$Color)
+levels(test$Kolor)
+test$Kolor<-as.numeric(test$Kolor)
+test<-na.omit(test)
+
+
+#PCA with color and carotenoid content
+#not used in paper
+library(ggfortify)
+df <- test[c(1:7,9:10)]
+pca_res <- prcomp(df, scale. = TRUE)
+autoplot(pca_res, color = test$Color, size=test$BCarotene/100)
+summary(pca_res)
+
+
+test1<-na.omit(test1)
+df1 <- grin[c(1:7,9:10)]
+
+```
+
+```{r L.a.b corr}
+setwd("~/Downloads")
+library(readxl)
+labcaro<- read_excel("carotenoid_quant_final_mean.xlsx")
+labcaro<-carotenoid_quant_final_mean
+
+#### only run this for yellow only
+labcaro<-subset(labcaro,Color=="yellow")
+############################################
+
+labcaro<-labcaro[,c(3:9)]
+labcaro$total<- labcaro$Lutein + labcaro$Zeaxanthin + labcaro$BCarotene
+
+
+#get rid of extra columns and NAs
+labcaro<-labcaro[,c(1:5,7:8)]
+labcaro<-na.omit(labcaro)
+labcaro<-as.data.frame(labcaro)
+
+
+#Correlations with b values
+cor.test(labcaro$total, labcaro$MeanB, method= "pearson")
+cor.test(labcaro$Zeaxanthin, labcaro$MeanB, method= "pearson")
+cor.test(labcaro$BCarotene, labcaro$MeanB, method= "pearson")
+cor.test(labcaro$Lutein, labcaro$MeanB, method= "pearson")
+
+#Correlations with L values
+cor.test(labcaro$total, labcaro$MeanL, method= "pearson")
+cor.test(labcaro$Zeaxanthin, labcaro$MeanL, method= "pearson")
+cor.test(labcaro$BCarotene, labcaro$MeanL, method= "pearson")
+cor.test(labcaro$Lutein, labcaro$MeanL, method= "pearson")
+
+#Correlations with a values
+cor.test(labcaro$total, labcaro$MeanA, method= "pearson")
+cor.test(labcaro$Zeaxanthin, labcaro$MeanA, method= "pearson")
+cor.test(labcaro$BCarotene, labcaro$MeanA, method= "pearson")
+cor.test(labcaro$Lutein, labcaro$MeanA, method= "pearson")
+
+#Correlations with carotenoid values
+cor.test(labcaro$total, labcaro$BCarotene, method= "pearson")
+cor.test(labcaro$Zeaxanthin, labcaro$total, method= "pearson")
+cor.test(labcaro$BCarotene, labcaro$Lutein, method= "pearson")
+cor.test(labcaro$Lutein, labcaro$Zeaxanthin, method= "pearson")
+cor.test(labcaro$BCarotene, labcaro$Zeaxanthin, method= "pearson")
+cor.test(labcaro$total, labcaro$Lutein, method= "pearson")
+cor.test(labcaro$total, labcaro$BCarotene, method= "pearson")
+
+
+#Correlagtions between L A B
+cor.test(labcaro$MeanL, labcaro$MeanA, method= "pearson")
+cor.test(labcaro$MeanL, labcaro$MeanB, method= "pearson")
+cor.test(labcaro$MeanB, labcaro$MeanA, method= "pearson")
+
+#ggpairs
+
+library(ggplot2)
+library(GGally)
+ggpairs(labcaro)
+
+
+```
+
