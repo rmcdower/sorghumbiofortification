@@ -469,7 +469,7 @@ periori<-ggplot(
 *H: There are patterns of morphological type associated with yellow sorghum*
 P: there will be races w sig higher numbers of yellow sorghums than other countries
 
-```{r figure 3 morphological}
+```{r figure morphological}
 
 rm(test,test1,test2,test3,test4) 
 #remove old variables
@@ -496,7 +496,7 @@ table(test2$race)
 ```
 
 
-```{r Fig3a: barplot of yellow endo morpho}
+```{r barplot of yellow endo morpho}
 
 
 test3<-subset(test2,ENDOSPRMCO =="2")
@@ -774,7 +774,7 @@ theme(axis.text.x =element_text(angle=45,vjust=1,hjust=1)) + ylim(c(0, 500))+lab
 ```
 
 
-```{r Fig3c: barplot of yellow pericarp race}
+```{r barplot of yellow pericarp race}
 
 rm(test,test1,test2,test3,test4) 
 #remove old variables
@@ -948,7 +948,7 @@ ggplot(test1, aes(x = TESTA, group = ENDOSPRMCO, fill = ENDOSPRMCO)) +
 
 ```
 
-```{r Figure 5}
+```{r Carotenoid content by country}
 library(ggplot2)
 library(dplyr)
 
@@ -994,7 +994,7 @@ ggplot(data = labcaroyellow_means, aes(x = origin)) +
 H: Quantitative…
 P1: 
 
-```{r}
+```{r additional t tests}
 
 test<-grin[,c(1,49,56,68,75)]
 carotenoid_quant_final_mean<- read.csv("carotenoid_quant_final_mean.csv")
