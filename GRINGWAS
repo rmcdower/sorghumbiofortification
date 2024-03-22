@@ -1,0 +1,207 @@
+
+#download phenotype data
+setwd("~/Downloads")
+library(readxl)
+caro<- read_excel("carotenoid_quant_final_mean.xlsx")
+
+
+#### Load the genotype file
+setwd("~/Desktop/GWAS")
+# read geno
+#always read as delim and use strings as factors
+read.delim("geno_R_no_duplicates_MAF.hmp.txt", stringsAsFactors=F)-> geno
+geno<- rbind( sub('\\..+', '', names(geno)), geno)
+
+
+#if genotype file is missing PIs it will give an error that 'x' must be numeric--> 
+# filter out phenotype data with missing genotype data
+genoonly<-data.frame(colnames(geno[,12:407]))
+colnames(genoonly)[1]= "PI"
+colnames(caro)[1]= "PI"
+
+#pheno file only has phenotypes that have genotypes #312 
+pheno <- merge(caro, genoonly, by = "PI")
+
+
+
+setwd("~/Desktop/GRIN/YWonlyColorLab") # or where ever you what the files to go
+
+#sometimes you have to coerce packages to work, i usually dont need to use this
+#if (!require("BiocManager", quietly = TRUE))
+# install.packages("BiocManager")
+#BiocManager::install("multtest")
+
+#load dependent packages
+library(multtest)
+library(gplots)
+library(LDheatmap)
+library(genetics)
+library(ape)
+library(EMMREML)
+library(compiler) #this library is already installed in R
+library("scatterplot3d")
+library("ggplot2")
+library(devtools)
+
+## GETTING GAPIT SOURCE CODE
+source("http://zzlab.net/GAPIT/GAPIT.library.R")
+source("https://zzlab.net/GAPIT/gapit_functions.txt")
+
+
+# Prepping our variables for GWAS, needs to be numeric
+labphenoo=na.omit(pheno[,c(1, 18)])
+
+labpheno<-as.data.frame(labphenoo)
+pheno$Color=as.factor(pheno$Color)
+levels(caro$Color)
+summary(caro$Color)
+pheno$Color=as.numeric(pheno$Color)
+
+
+
+
+#run this for only white and yellow grain
+pheno <- subset(pheno,         
+                Color == "4"|
+                  Color == "3")
+myGAPIT_caro <- GAPIT(
+  Y=pheno,
+  G=geno,
+  PCA.total = 7,
+  SNP.MAF= 0.05, 
+  model="BLINK")
+
+#################Yellow or not yellow GWAS
+
+#phenotype or Y
+labpheno=pheno[,c(1, 18)]
+
+#change all other colors (red, brown, white) to not yellow
+labpheno["Color"][labpheno["Color"] == "red" | labpheno["Color"] == "brown" | labpheno["Color"] == "white"] <- "notyellow"
+
+
+labpheno$Color=as.factor(labpheno$Color)
+levels(labpheno$Color)
+#1=notyellow 2=yellow
+labpheno$Color=as.numeric(labpheno$Color)
+
+
+#GWAS for color with BLINK
+myGAPIT_Color <- GAPIT(
+  Y=labpheno,
+  G=geno,
+  PCA.total = 7,
+  Model.selection = TRUE, 
+  SNP.MAF= 0.05,
+  model=c("BLINK"))
+
+#############Quantitative GWAS for Carotenoid content######
+
+#phenotype or Y
+caropheno<- pheno[,c(1,6,7,9)]
+caropheno$Total= pheno$Lutein + pheno$Zeaxanthin + pheno$BCarotene 
+
+pheno<-pheno[,c(1,18)]
+
+setwd("~/Desktop/GRIN/Carotenoid")
+myGAPIT_caro <- GAPIT(
+  Y=caropheno,
+  G=geno,
+  PCA.total = 7,
+  SNP.MAF= 0.05, 
+  model="BLINK")
+
+############# Quantitative Color GWAS + Color
+labpheno<- labpheno[,c(1:4)]
+labpheno<-na.omit(labpheno)
+labpheno= data.frame(labpheno)
+
+setwd("~/Desktop/GRIN/ColorLAB")
+
+myGAPIT_caro <- GAPIT(
+  Y=labpheno,
+  G=geno,
+  PCA.total = 7,
+  SNP.MAF= 0.05, 
+  model="BLINK")
+
+
+###########################################################
+
+#PCAs from GAPIT data
+test<- myGAPIT_LAB$PCA
+colnames(test)[1]= "PI"
+pheno <- merge(together, test, by = "PI")
+  ggplot(pheno,
+         aes(
+           PC1, 
+           PC2,
+           color= "Color"
+         ))+
+  geom_point(alpha=0.8)
+
+  test2<- myGAPIT_LAB$PCA
+  colnames(test2)[1]= "PI"
+  pheno2 <- merge(labpheno, test2, by = "PI")
+  pheno3 <- merge(pheno3, caropheno, by = "PI")
+  pheno$Color <- sub(pattern = "1", replacement = "brown",pheno$Color)
+  pheno$Color <- sub(pattern = "2", replacement = "red",pheno$Color)
+  pheno$Color <- sub(pattern = "3", replacement = "white",pheno$Color)
+  pheno$Color <- sub(pattern = "4", replacement = "yellow",pheno$Color)
+  
+  peri_color_lookup <- c(
+    red = 'red',
+    white = 'gray',
+    brown = 'brown',
+    yellow = 'orange')
+  
+  
+  peri_clr_vec <- peri_color_lookup[match(pheno$Color, names(peri_color_lookup))]
+  
+  
+  pheno=pheno[,c(1,5,10:12)]
+  
+  pheno=na.omit(pheno)
+  
+  
+  
+  pheno2$Color <-as.factor(pheno2$Color)
+  ggplot(pheno,
+         aes(PC1,PC3,
+           color=Color,))+
+    geom_point(alpha=0.8, size=3) + scale_colour_manual(values = peri_clr_vec, breaks=c("brown","red","white", "yellow")) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+                                                                            panel.background = element_blank(),axis.line=element_line(colour="black")) + theme(axis.text.x = element_text(size = 20, colour="black")) + theme(axis.text.y = element_text(size = 20, colour="black")) + theme(text=element_text(size=20,colour="black")) 
+  
+ #################################### MANHATTAN PLOTS 
+# load needed packages
+install.packages("qqman")
+library(qqman)
+
+install.packages("glmnet", dep=TRUE) 
+library(glmnet)
+
+Example: ##########    ZEAXANTHIN.  ##################
+zeaBLINK <-read.csv('GAPIT.Association.GWAS_Results.BLINK.Zeaxanthin.csv',head=TRUE,sep=',',stringsAsFactors=F)
+qq(zeaBLINK$P.value, main = "Q-Q plot of GWAS p-values")
+zeaBLINK$FDR=p.adjust(zeaBLINK$P.value, method="fdr")
+
+zeaBLINK_snpsOfInterest <- zeaBLINK[zeaBLINK$FDR <  0.05, "SNP"]
+print(zeaBLINK_snpsOfInterest)
+
+zeaBLINK <- zeaBLINK[,c(1:4,9)]
+colnames(zeaBLINK)[2] <- "CHR"
+colnames(zeaBLINK)[3] <- "BP"
+colnames(zeaBLINK)[4] <- "P"
+colnames(zeaBLINK)[5] <- "FDR"
+
+
+manhattan(zeaBLINK, highlight= zeaBLINK_snpsOfInterest, main= "Zeaxanthin", suggestiveline=F, genomewideline=F)
+abline(h=(FDR5),col="blue", lwd=1)
+abline(h=(FDR10), col= "blue", lwd=1)
+
+
+print(zeaBLINK_snpsOfInterest)
+
+
+FDR5=-log10(min(subset(zeaBLINK,FDR>0.049)$P))
+FDR10=-log10(min(subset(zeaBLINK,FDR>0.1)$P))
